@@ -81,6 +81,7 @@ bool Print::invalidate_state_by_config_options(const std::vector<t_config_option
         "between_objects_gcode",
         "bridge_acceleration",
         "bridge_fan_speed",
+        "bridge_internal_fan_speed",
         "colorprint_heights",
         "complete_objects_sort",
         "cooling",
@@ -1279,6 +1280,8 @@ bool Print::has_skirt() const
 
 static inline bool sequential_print_horizontal_clearance_valid(const Print &print)
 {
+    if (print.config().extruder_clearance_radius == 0)
+        return true;
 	Polygons convex_hulls_other;
 	std::map<ObjectID, Polygon> map_model_object_to_convex_hull;
     const double dist_grow = PrintConfig::min_object_distance(&print.default_region_config()) * 2;

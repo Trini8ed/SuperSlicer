@@ -597,6 +597,7 @@ const std::vector<std::string>& Preset::print_options()
         "hole_size_threshold",
         "hole_to_polyhole",
         "hole_to_polyhole_threshold",
+        "hole_to_polyhole_twisted",
         "threads",
         // wipe tower
         "wipe_tower", "wipe_tower_x", "wipe_tower_y", "wipe_tower_width", "wipe_tower_rotation_angle", "wipe_tower_bridging",
@@ -673,6 +674,7 @@ const std::vector<std::string>& Preset::filament_options()
         "min_fan_speed",
         "max_fan_speed", 
         "bridge_fan_speed",
+        "bridge_internal_fan_speed",
         "top_fan_speed",
         "disable_fan_first_layers",
         "fan_below_layer_time", 

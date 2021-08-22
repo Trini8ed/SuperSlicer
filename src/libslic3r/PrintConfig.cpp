@@ -330,7 +330,7 @@ void PrintConfigDef::init_fff_params()
     def = this->add("bridge_fan_speed", coInts);
     def->label = L("Bridges fan speed");
     def->category = OptionCategory::cooling;
-    def->tooltip = L("This fan speed is enforced during all bridges and overhangs. It won't slow down the fan if it's currently running at a higher speed."
+    def->tooltip = L("This fan speed is enforced during bridges and overhangs. It won't slow down the fan if it's currently running at a higher speed."
         "\nSet to 1 to disable the fan."
         "\nSet to -1 to disable this override."
         "\nCan only be overriden by disable_fan_first_layers.");
@@ -338,7 +338,20 @@ void PrintConfigDef::init_fff_params()
     def->min = -1;
     def->max = 100;
     def->mode = comAdvanced;
-    def->set_default_value(new ConfigOptionInts { 100 });
+    def->set_default_value(new ConfigOptionInts{ 100 });
+
+    def = this->add("bridge_internal_fan_speed", coInts);
+    def->label = L("Infill bridges fan speed");
+    def->category = OptionCategory::cooling;
+    def->tooltip = L("This fan speed is enforced during all infill bridges. It won't slow down the fan if it's currently running at a higher speed."
+        "\nSet to 1 to disable the fan."
+        "\nSet to -1 to disable this override (will take the value of Bridges fan speed)."
+        "\nCan only be overriden by disable_fan_first_layers.");
+    def->sidetext = L("%");
+    def->min = -1;
+    def->max = 100;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionInts{ -1 });
 
     def = this->add("top_fan_speed", coInts);
     def->label = L("Top fan speed");
@@ -1100,7 +1113,8 @@ void PrintConfigDef::init_fff_params()
     def->tooltip = L("Set this to the clearance radius around your extruder. "
                    "If the extruder is not centered, choose the largest value for safety. "
                    "This setting is used to check for collisions and to display the graphical preview "
-                   "in the plater.");
+                   "in the plater."
+                   "\nSet to 0 to disable clearance checking.");
     def->sidetext = L("mm");
     def->min = 0;
     def->mode = comExpert;
@@ -4426,12 +4440,20 @@ void PrintConfigDef::init_fff_params()
     def->full_label = L("Polyhole detection margin");
     def->category = OptionCategory::slicing;
     def->tooltip = L("Maximum defection of a point to the estimated radius of the circle."
-                    "\nAs cylinders are often exported as triangles of varying size, points may not be on the circle circumference."
-                    " This setting allows you some leway to broaden the detection."
-                    "\nIn mm or in % of the radius.");
+        "\nAs cylinders are often exported as triangles of varying size, points may not be on the circle circumference."
+        " This setting allows you some leway to broaden the detection."
+        "\nIn mm or in % of the radius.");
     def->sidetext = L("mm or %");
     def->mode = comExpert;
     def->set_default_value(new ConfigOptionFloatOrPercent(0.01, false));
+
+    def = this->add("hole_to_polyhole_twisted", coBool);
+    def->label = L("Twisting");
+    def->full_label = L("Polyhole twist");
+    def->category = OptionCategory::slicing;
+    def->tooltip = L("Rotate the polyhole every layer.");
+    def->mode = comExpert;
+    def->set_default_value(new ConfigOptionBool(true));
 
     def = this->add("z_offset", coFloat);
     def->label = L("Z offset");
@@ -5460,6 +5482,7 @@ void PrintConfigDef::to_prusa(t_config_option_key& opt_key, std::string& value, 
 "avoid_crossing_not_first_layer",
 "top_fan_speed",
 "over_bridge_flow_ratio",
+"bridge_internal_fan_speed",
 "bridge_overlap",
 "bridge_speed_internal",
 "brim_inside_holes",
@@ -5581,6 +5604,7 @@ void PrintConfigDef::to_prusa(t_config_option_key& opt_key, std::string& value, 
 "hole_size_threshold",
 "hole_to_polyhole",
 "hole_to_polyhole_threshold",
+"hole_to_polyhole_twisted",
 "z_step",
 "milling_cutter",
 "milling_diameter",
