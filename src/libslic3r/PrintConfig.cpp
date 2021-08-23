@@ -1114,7 +1114,7 @@ void PrintConfigDef::init_fff_params()
                    "If the extruder is not centered, choose the largest value for safety. "
                    "This setting is used to check for collisions and to display the graphical preview "
                    "in the plater."
-                   "\nSet to 0 to disable clearance checking.");
+                   "\nSet zero to disable clearance checking.");
     def->sidetext = L("mm");
     def->min = 0;
     def->mode = comExpert;
@@ -1235,7 +1235,7 @@ void PrintConfigDef::init_fff_params()
     def->category = OptionCategory::cooling;
     def->tooltip = L("If layer print time is estimated below this number of seconds, fan will be enabled "
                 "and its speed will be calculated by interpolating the default and maximum speeds."
-                "\nSet to 0 to disable.");
+                "\nSet zero to disable.");
     def->sidetext = L("approximate seconds");
     def->min = 0;
     def->max = 1000;
@@ -1838,14 +1838,14 @@ void PrintConfigDef::init_fff_params()
     def->set_default_value(new ConfigOptionFloatOrPercent(75, true));
 
     def = this->add("first_layer_speed", coFloatOrPercent);
-    def->label = L("Default");
+    def->label = L("Max");
     def->full_label = L("Default first layer speed");
     def->category = OptionCategory::speed;
     def->tooltip = L("If expressed as absolute value in mm/s, this speed will be applied to all the print moves "
-                   "but infill of the first layer, it can be overwritten by the 'default' (default depends of the type of the path) "
-                   "speed if it's lower than that. If expressed as a percentage "
-                   "it will scale the current speed."
-                   "\nSet it at 100% to remove any first layer speed modification (with first_layer_infill_speed).");
+        "but infill of the first layer, it can be overwritten by the 'default' (default depends of the type of the path) "
+        "speed if it's lower than that. If expressed as a percentage "
+        "it will scale the current speed."
+        "\nSet it at 100% to remove any first layer speed modification (with first_layer_infill_speed and first_layer_speed_min).");
     def->sidetext = L("mm/s or %");
     def->ratio_over = "depends";
     def->min = 0;
@@ -1865,6 +1865,20 @@ void PrintConfigDef::init_fff_params()
     def->min = 0;
     def->mode = comExpert;
     def->set_default_value(new ConfigOptionFloatOrPercent(30, false));
+
+    def = this->add("first_layer_min_speed", coFloatOrPercent);
+    def->label = L("Min");
+    def->full_label = L("Min first layer speed");
+    def->category = OptionCategory::speed;
+    def->tooltip = L("If expressed as absolute value in mm/s, this speed will be applied to all the print moves"
+        ", it can be overwritten by the 'default' (default depends of the type of the path) speed if it's higher than that."
+        " If expressed as a percentage it will scale the current speed."
+        "\nSet zero to disable.");
+    def->sidetext = L("mm/s or %");
+    def->ratio_over = "depends";
+    def->min = 0;
+    def->mode = comAdvanced;
+    def->set_default_value(new ConfigOptionFloatOrPercent(0, false));
     
     def = this->add("first_layer_temperature", coInts);
     def->label = L("First layer");
@@ -2572,6 +2586,17 @@ void PrintConfigDef::init_fff_params()
     def->mode = comAdvanced;
     def->set_default_value(new ConfigOptionFloats{ 1500., 1250. });
 
+    def = this->add("max_gcode_per_second", coFloat);
+    def->label = L("Maximum G1 per second");
+    def->category = OptionCategory::speed;
+    def->tooltip = L("If your firmware stops while printing, it may have its gcode queue full."
+        " Set this parameter to merge extrusions into bigger ones to reduce the number of gcode commands the printer has to process each second."
+        "\nNote that reducing your printing speed (at least for the external extrusions) will reduce the number of time this will triggger and so increase quality."
+        "\nSet zero to disable.");
+    def->min = 0;
+    def->mode = comExpert;
+    def->set_default_value(new ConfigOptionFloat(1500));
+
     def = this->add("max_fan_speed", coInts);
     def->label = L("Max");
     def->full_label = L("Max fan speed");
@@ -2686,8 +2711,9 @@ void PrintConfigDef::init_fff_params()
     def = this->add("min_length", coFloat);
     def->label = L("Minimum extrusion length");
     def->category = OptionCategory::speed;
-    def->tooltip = L("Too many too small commands may overload the firmware / connection. Put a higher value here if you see strange slowdown."
-                     "\n0 to disable.");
+    def->tooltip = L("[Deprecated] Prefer using max_gcode_per_second instead, as it's much better when you have very different speeds for features."
+        "\nToo many too small commands may overload the firmware / connection. Put a higher value here if you see strange slowdown."
+        "\nSet zero to disable.");
     def->sidetext = L("mm");
     def->min = 0;
     def->precision = 8;
@@ -3080,7 +3106,7 @@ void PrintConfigDef::init_fff_params()
     def->category = OptionCategory::slicing;
     def->tooltip = L("Minimum detail resolution, used to simplify the input file for speeding up "
         "the slicing job and reducing memory usage. High-resolution models often carry "
-        "more details than printers can render. Set to zero to disable any simplification "
+        "more details than printers can render. Set zero to disable any simplification "
         "and use full resolution from input. "
         "\nNote: Slic3r has an internal working resolution of 0.0001mm."
         "\nInfill & Thin areas are simplified up to 0.0125mm.");
@@ -3359,7 +3385,7 @@ void PrintConfigDef::init_fff_params()
     def->category = OptionCategory::cooling;
     def->tooltip = L("If layer print time is estimated below this number of seconds, print moves "
         "speed will be scaled down to extend duration to this value, if possible."
-        "\nSet to 0 to disable.");
+        "\nSet zero to disable.");
     def->sidetext = L("approximate seconds");
     def->min = 0;
     def->max = 1000;
@@ -3454,7 +3480,7 @@ void PrintConfigDef::init_fff_params()
     def->label = L("cutoff");
     def->full_label = L("Curve smoothing cutoff dist");
     def->category = OptionCategory::slicing;
-    def->tooltip = L("Maximum distance between two points to allow adding new ones. Allow to avoid distorting long strait areas. 0 to disable.");
+    def->tooltip = L("Maximum distance between two points to allow adding new ones. Allow to avoid distorting long strait areas.\nSet zero to disable.");
     def->sidetext = L("mm");
     def->min = 0;
     def->cli = "curve-smoothing-cutoff-dist=f";
@@ -3621,7 +3647,7 @@ void PrintConfigDef::init_fff_params()
     def->category = OptionCategory::slicing;
     def->tooltip = L("This is the rounding error of the input object."
         " It's used to align points that should be in the same line."
-        " Put 0 to disable.");
+        "\nSet zero to disable.");
     def->sidetext = L("mm");
     def->min = 0;
     def->precision = 8;
@@ -3687,7 +3713,7 @@ void PrintConfigDef::init_fff_params()
         " This number allow to keep some if there is a low number of perimeter over the void."
         "\nIf this setting is equal or higher than the top/bottom solid layer count, it won't evict anything."
         "\nIf this setting is set to 1, it will evict all solid fill are are only over perimeters."
-        "\nSet it to 0 to disable.");
+        "\nSet zero to disable.");
     def->min = 0;
     def->mode = comAdvanced;
     def->set_default_value(new ConfigOptionInt(2));
@@ -4471,7 +4497,7 @@ void PrintConfigDef::init_fff_params()
     def->tooltip = L("Set this to the height moved when your Z motor (or equivalent) turns one step."
                     "If your motor needs 200 steps to move your head/plater by 1mm, this field should be 1/200 = 0.005."
                     "\nNote that the gcode will write the z values with 6 digits after the dot if z_step is set (it's 3 digits if it's disabled)."
-                    "\nPut 0 to disable.");
+                    "\nSet zero to disable.");
     def->cli = "z-step=f";
     def->sidetext = L("mm");
     def->min = 0;
@@ -5471,100 +5497,123 @@ void PrintConfigDef::handle_legacy(t_config_option_key &opt_key, std::string &va
     }
 }
 
-void PrintConfigDef::to_prusa(t_config_option_key& opt_key, std::string& value, const DynamicConfig& all_conf) {
-
-    std::unordered_set<std::string> to_remove_keys = {
-"thumbnails_color",
-"thumbnails_custom_color",
-"thumbnails_with_bed",
-"thumbnails_with_support",
+std::unordered_set<std::string> prusa_export_to_remove_keys = {
 "allow_empty_layers",
 "avoid_crossing_not_first_layer",
-"top_fan_speed",
-"over_bridge_flow_ratio",
 "bridge_internal_fan_speed",
 "bridge_overlap",
 "bridge_speed_internal",
-"brim_inside_holes",
-"brim_width_interior",
-"brim_ears",
+"bridged_infill_margin",
 "brim_ears_detection_length",
 "brim_ears_max_angle",
 "brim_ears_pattern",
+"brim_ears",
+"brim_inside_holes",
 "brim_offset",
+"brim_width_interior",
 "chamber_temperature",
-"complete_objects_one_skirt",
 "complete_objects_one_brim",
+"complete_objects_one_skirt",
 "complete_objects_sort",
-"solid_fill_pattern",
+"curve_smoothing_angle_concave",
+"curve_smoothing_angle_convex",
+"curve_smoothing_cutoff_dist",
+"curve_smoothing_precision",
 "enforce_full_fill_volume",
+"exact_last_layer_height",
 "external_infill_margin",
-"bridged_infill_margin",
 "external_perimeter_cut_corners",
+"external_perimeter_extrusion_spacing",
 "external_perimeter_fan_speed",
 "external_perimeter_overlap",
-"perimeter_overlap",
-"perimeter_bonding",
-"external_perimeters_vase",
-"external_perimeters_nothole",
 "external_perimeters_hole",
-"perimeter_loop",
-"perimeter_loop_seam",
-"extra_perimeters_overhangs",
+"external_perimeters_nothole",
+"external_perimeters_vase",
 "extra_perimeters_odd_layers",
-"only_one_perimeter_top",
-"only_one_perimeter_top_other_algo",
-"extruder_temperature_offset",
+"extra_perimeters_overhangs",
 "extruder_fan_offset",
-"print_extrusion_multiplier",
+"extruder_temperature_offset",
+"extrusion_spacing",
+"fan_kickstart",
+"fan_percentage",
+"fan_speedup_overhangs",
+"fan_speedup_time",
+"feature_gcode",
+"filament_cooling_zone_pause",
+"filament_dip_extraction_speed",
+"filament_dip_insertion_speed",
+"filament_enable_toolchange_part_fan",
+"filament_enable_toolchange_temp",
 "filament_max_speed",
 "filament_max_wipe_tower_speed",
-"filament_enable_toolchange_temp",
-"filament_use_fast_skinnydip",
-"filament_enable_toolchange_part_fan",
-"filament_toolchange_part_fan_speed",
-"filament_use_skinnydip",
 "filament_melt_zone_pause",
-"filament_cooling_zone_pause",
-"filament_dip_insertion_speed",
-"filament_dip_extraction_speed",
-"filament_toolchange_temp",
-"filament_skinnydip_distance",
 "filament_shrink",
+"filament_skinnydip_distance",
+"filament_toolchange_part_fan_speed",
+"filament_toolchange_temp",
+"filament_use_fast_skinnydip",
+"filament_use_skinnydip",
+"filament_wipe_advanced_pigment",
 "fill_angle_increment",
-"fill_top_flow_ratio",
-"fill_top_flow_ratio",
-"first_layer_flow_ratio",
-"fill_smooth_width",
 "fill_smooth_distribution",
+"fill_smooth_width",
+"fill_top_flow_ratio",
+"fill_top_flow_ratio",
+"first_layer_extrusion_spacing",
+"first_layer_flow_ratio",
 "first_layer_infill_speed",
-"gap_fill",
+"first_layer_min_speed",
+"first_layer_size_compensation_layers",
+"gap_fill_infill",
 "gap_fill_min_area",
 "gap_fill_overlap",
-"gap_fill_infill",
-"infill_dense",
+"gap_fill",
+"hole_size_compensation",
+"hole_size_threshold",
+"hole_to_polyhole_threshold",
+"hole_to_polyhole_twisted",
+"hole_to_polyhole",
 "infill_connection",
 "infill_dense_algo",
-"feature_gcode",
-"exact_last_layer_height",
-"fan_speedup_time",
-"fan_speedup_overhangs",
-"fan_percentage",
-"fan_kickstart",
+"infill_dense",
+"infill_extrusion_spacing",
 "machine_max_acceleration_travel",
 "max_speed_reduction",
+"milling_after_z",
+"milling_cutter",
+"milling_diameter",
+"milling_extra_size",
+"milling_offset",
+"milling_post_process",
+"milling_speed",
+"milling_toolchange_end_gcode",
+"milling_toolchange_start_gcode",
+"milling_z_lift",
+"milling_z_offset",
 "min_length",
 "min_width_top_surface",
-"printhost_apikey",
-"printhost_cafile",
-"print_host",
+"model_precision",
+"no_perimeter_unsupported_algo",
+"only_one_perimeter_top_other_algo",
+"only_one_perimeter_top",
+"over_bridge_flow_ratio",
+"overhangs_reverse_threshold",
+"overhangs_reverse",
 "overhangs_speed",
 "overhangs_width_speed",
-"overhangs_reverse",
-"overhangs_reverse_threshold",
-"no_perimeter_unsupported_algo",
-"support_material_solid_first_layer",
+"perimeter_bonding",
+"perimeter_extrusion_spacing",
+"perimeter_loop_seam",
+"perimeter_loop",
+"perimeter_overlap",
+"perimeter_round_corners",
+"print_extrusion_multiplier",
+"print_host",
 "print_retract_length",
+"print_retract_lift",
+"print_temperature",
+"printhost_apikey",
+"printhost_cafile",
 "retract_lift_first_layer",
 "retract_lift_top",
 "seam_angle_cost",
@@ -5572,66 +5621,45 @@ void PrintConfigDef::to_prusa(t_config_option_key& opt_key, std::string& value, 
 "skirt_brim",
 "skirt_distance_from_brim",
 "skirt_extrusion_width",
-"small_perimeter_min_length",
 "small_perimeter_max_length",
-"curve_smoothing_angle_convex",
-"curve_smoothing_angle_concave",
-"curve_smoothing_precision",
-"curve_smoothing_cutoff_dist",
-"model_precision",
-"support_material_contact_distance_type",
+"small_perimeter_min_length",
+"solid_fill_pattern",
+"solid_infill_extrusion_spacing",
+"start_gcode_manual",
 "support_material_contact_distance_bottom",
+"support_material_contact_distance_type",
 "support_material_interface_pattern",
-"print_temperature",
-"print_retract_lift",
-"thin_perimeters",
+"support_material_solid_first_layer",
 "thin_perimeters_all",
+"thin_perimeters",
+"thin_walls_merge",
 "thin_walls_min_width",
 "thin_walls_overlap",
-"thin_walls_merge",
 "thin_walls_speed",
+"thumbnails_color",
+"thumbnails_custom_color",
+"thumbnails_with_bed",
+"thumbnails_with_support",
 "time_estimation_compensation",
 "tool_name",
-"wipe_advanced",
-"wipe_advanced_nozzle_melted_volume",
-"filament_wipe_advanced_pigment",
-"wipe_advanced_multiplier",
-"wipe_advanced_algo",
-"wipe_tower_brim",
-"wipe_extra_perimeter",
-"xy_inner_size_compensation",
-"hole_size_compensation",
-"hole_size_threshold",
-"hole_to_polyhole",
-"hole_to_polyhole_threshold",
-"hole_to_polyhole_twisted",
-"z_step",
-"milling_cutter",
-"milling_diameter",
-"milling_offset",
-"milling_z_offset",
-"milling_z_lift",
-"milling_toolchange_start_gcode",
-"milling_toolchange_end_gcode",
-"milling_post_process",
-"milling_extra_size",
-"milling_after_z",
-"milling_speed",
-"extrusion_spacing",
-"first_layer_extrusion_spacing",
-"perimeter_extrusion_spacing",
-"external_perimeter_extrusion_spacing",
-"infill_extrusion_spacing",
-"solid_infill_extrusion_spacing",
+"top_fan_speed",
 "top_infill_extrusion_spacing",
-"start_gcode_manual",
-"perimeter_round_corners",
-"travel_speed_z",
-"first_layer_size_compensation_layers",
 "travel_acceleration",
-    };
+"travel_speed_z",
+"wipe_advanced_algo",
+"wipe_advanced_multiplier",
+"wipe_advanced_nozzle_melted_volume",
+"wipe_advanced",
+"wipe_extra_perimeter",
+"wipe_tower_brim",
+"xy_inner_size_compensation",
+"z_step",
+};
+
+void PrintConfigDef::to_prusa(t_config_option_key& opt_key, std::string& value, const DynamicConfig& all_conf) {
+
     //looks if it's to be removed, or have to be transformed
-    if (to_remove_keys.find(opt_key) != to_remove_keys.end()) {
+    if (prusa_export_to_remove_keys.find(opt_key) != prusa_export_to_remove_keys.end()) {
         opt_key = "";
         value = "";
     } else if (opt_key.find("_pattern") != std::string::npos) {

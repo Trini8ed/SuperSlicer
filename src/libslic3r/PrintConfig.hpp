@@ -1096,6 +1096,7 @@ public:
     ConfigOptionInts                gcode_precision_e;
     ConfigOptionString              layer_gcode;
     ConfigOptionString              feature_gcode;
+    ConfigOptionFloat               max_gcode_per_second;
     ConfigOptionFloat               max_print_speed;
     ConfigOptionFloat               max_volumetric_speed;
 #ifdef HAS_PRESSURE_EQUALIZER
@@ -1209,6 +1210,7 @@ protected:
         OPT_PTR(gcode_precision_e);
         OPT_PTR(layer_gcode);
         OPT_PTR(feature_gcode);
+        OPT_PTR(max_gcode_per_second);
         OPT_PTR(max_print_speed);
         OPT_PTR(max_volumetric_speed);
         OPT_PTR(milling_z_lift);
@@ -1304,6 +1306,7 @@ public:
     ConfigOptionPercent             first_layer_flow_ratio;
     ConfigOptionFloatOrPercent      first_layer_speed;
     ConfigOptionFloatOrPercent      first_layer_infill_speed;
+    ConfigOptionFloatOrPercent      first_layer_min_speed;
     ConfigOptionInts                first_layer_temperature;
     ConfigOptionInts                full_fan_speed_layer;
     ConfigOptionFloatOrPercent      infill_acceleration;
@@ -1404,6 +1407,7 @@ protected:
         OPT_PTR(first_layer_flow_ratio);
         OPT_PTR(first_layer_speed);
         OPT_PTR(first_layer_infill_speed);
+        OPT_PTR(first_layer_min_speed);
         OPT_PTR(first_layer_temperature);
         OPT_PTR(full_fan_speed_layer);
         OPT_PTR(infill_acceleration);
@@ -1954,8 +1958,6 @@ public:
     // Not thread safe! Should not be called from other than the main thread!
     void                touch() { m_timestamp = ++ s_last_timestamp; }
 
-    void                to_prusa(t_config_option_key& opt_key, std::string& value) const
-        { m_data.to_prusa(opt_key, value); }
 private:
     friend class cereal::access;
     template<class Archive> void serialize(Archive& ar) { ar(m_timestamp); ar(m_data); }
